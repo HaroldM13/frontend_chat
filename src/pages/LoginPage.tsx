@@ -45,8 +45,7 @@ export function LoginPage() {
     className="min-h-screen flex flex-col items-center justify-center"
     style={{ 
       backgroundColor: "var(--color-bg-primary)",
-      padding: "1.5rem",
-      minHeight: "100vh"
+      padding: "1.5rem" // ← Más espacio
     }}
   >
     {/* Controles superiores */}
