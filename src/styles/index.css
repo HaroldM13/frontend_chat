@@ -135,3 +135,29 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+/* ─── Fix para altura real en móviles ────────────────────────────────── */
+/* Soporte para viewports dinámicos que consideran barras del navegador */
+@supports (height: 100dvh) {
+  html, body, #root {
+    height: 100dvh;
+  }
+}
+
+/* Fix específico para móviles */
+@media (max-width: 768px) {
+  html, body, #root {
+    height: 100vh;
+    height: 100dvh;
+    height: -webkit-fill-available;
+  }
+  
+  body {
+    overflow: hidden;
+  }
+}
+
+/* Prevenir zoom en inputs en iOS */
+input, textarea, select {
+  font-size: 16px !important;
+}

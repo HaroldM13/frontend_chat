@@ -235,7 +235,10 @@ export function ChatPage() {
   return (
   <div
     className="flex h-screen overflow-hidden"
-    style={{ backgroundColor: "var(--color-bg-primary)" }}
+    style={{ 
+      backgroundColor: "var(--color-bg-primary)",
+      height: "100vh"
+    }}
   >
     {/* Barra lateral */}
     <BarraLateral
