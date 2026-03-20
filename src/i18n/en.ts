@@ -1,0 +1,111 @@
+/**
+ * English translations for JHT Chat.
+ */
+import type { Translations } from './es'
+
+const en: Translations = {
+  auth: {
+    login: 'Sign in',
+    register: 'Sign up',
+    phone: 'Phone number',
+    name: 'Full name',
+    loginBtn: 'Sign in',
+    registerBtn: 'Create account',
+    noAccount: "Don't have an account?",
+    hasAccount: 'Already have an account?',
+    phonePlaceholder: 'e.g. 3001234567',
+    namePlaceholder: 'e.g. John Doe',
+    welcome: 'Welcome to JHT Chat',
+    subtitle: 'Connect with your contacts in real time',
+  },
+
+  nav: {
+    contacts: 'Contacts',
+    groups: 'Groups',
+    generalRoom: 'General room',
+    logout: 'Sign out',
+    deleteProfile: 'Delete profile',
+    theme: 'Theme',
+    language: 'Language',
+    lightTheme: 'Light',
+    darkTheme: 'Dark',
+    search: 'Search...',
+  },
+
+  chat: {
+    messagePlaceholder: 'Type a message...',
+    send: 'Send',
+    noMessages: 'No messages yet',
+    startConversation: 'Be the first to write',
+    generalRoom: 'General room',
+    generalRoomDesc: 'All connected users',
+    privateChat: 'Private chat',
+    selectChat: 'Select a conversation',
+    selectChatDesc: 'Choose a contact, group or the general room to start',
+    you: 'You',
+    userOnline: 'Online',
+    userOffline: 'Offline',
+    deleteChat: 'Delete conversation',
+    deleteChatConfirm: 'Delete this conversation? It will be removed for both users.',
+    deleteChatBtn: 'Delete',
+  },
+
+  contacts: {
+    title: 'Contacts',
+    add: 'Add contact',
+    addPlaceholder: "Contact's phone",
+    addBtn: 'Add',
+    empty: 'No contacts yet',
+    emptyDesc: 'Add a contact by their phone number',
+    delete: 'Remove',
+    chat: 'Chat',
+    search: 'Search contact...',
+  },
+
+  groups: {
+    title: 'Groups',
+    create: 'Create group',
+    createBtn: 'Create',
+    namePlaceholder: 'Group name',
+    empty: "You don't belong to any group",
+    emptyDesc: 'Create a group or ask to be added',
+    members: 'member(s)',
+    addMember: 'Add member',
+    addMemberPlaceholder: "New member's phone",
+    leave: 'Leave group',
+    delete: 'Delete group',
+    deleteConfirm: 'Delete the group? This action cannot be undone.',
+    leaveConfirm: 'Leave the group?',
+    createdBy: 'Created by',
+    you: 'you',
+    membersList: 'Members',
+  },
+
+  profile: {
+    title: 'Profile',
+    editName: 'Edit name',
+    namePlaceholder: 'New name',
+    editSuccess: 'Name updated',
+    delete: 'Delete profile',
+    deleteConfirm: 'Are you sure? This will permanently delete your account, messages and contacts.',
+    deleteBtn: 'Yes, delete',
+    cancel: 'Cancel',
+  },
+
+  common: {
+    error: 'Error',
+    success: 'Success',
+    loading: 'Loading...',
+    retry: 'Retry',
+    close: 'Close',
+    save: 'Save',
+    edit: 'Edit',
+    confirm: 'Confirm',
+    back: 'Back',
+    online: 'Connected',
+    connecting: 'Connecting...',
+    disconnected: 'Disconnected',
+  },
+}
+
+export default en
