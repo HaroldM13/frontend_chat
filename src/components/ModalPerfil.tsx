@@ -52,110 +52,138 @@ export function ModalPerfil({ onEliminarPerfil }: Props) {
   }
 
   return (
-    <div className="space-y-5">
-      {/* Avatar + nombre */}
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    {/* Avatar + nombre */}
+    <div
+      className="flex flex-col items-center border-b"
+      style={{ 
+        borderColor: 'var(--color-border)',
+        paddingBottom: '1.5rem',
+        gap: '1.25rem'
+      }}
+    >
       <div
-        className="flex flex-col items-center gap-3 pb-5 border-b"
-        style={{ borderColor: 'var(--color-border)' }}
+        className="rounded-3xl flex items-center justify-center font-bold"
+        style={{
+          backgroundColor: 'var(--color-accent-light)',
+          color: 'var(--color-accent)',
+          boxShadow: 'var(--shadow-lg)',
+          width: '7rem',
+          height: '7rem',
+          fontSize: '2.5rem'
+        }}
       >
-        <div
-          className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold"
-          style={{
-            backgroundColor: 'var(--color-accent-light)',
-            color: 'var(--color-accent)',
-            boxShadow: 'var(--shadow-md)',
-          }}
-        >
-          {nombre?.charAt(0).toUpperCase() ?? <IconUser size={32} />}
-        </div>
-
-        {editando ? (
-          <div className="w-full flex gap-2">
-            <input
-              type="text"
-              value={nuevoNombre}
-              onChange={e => setNuevoNombre(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') guardarNombre()
-                if (e.key === 'Escape') cancelarEdicion()
-              }}
-              placeholder={t.profile.namePlaceholder}
-              autoFocus
-              className="flex-1 px-3 py-2 rounded-lg text-sm outline-none"
-              style={{
-                backgroundColor: 'var(--color-bg-tertiary)',
-                color: 'var(--color-text-primary)',
-                border: '1.5px solid var(--color-accent)',
-              }}
-            />
-            <button
-              onClick={guardarNombre}
-              disabled={guardando || !nuevoNombre.trim()}
-              className="p-2 rounded-lg transition-colors disabled:opacity-40"
-              style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
-              title={t.common.save}
-            >
-              <IconCheck size={16} />
-            </button>
-            <button
-              onClick={cancelarEdicion}
-              className="p-2 rounded-lg transition-colors"
-              style={{
-                backgroundColor: 'var(--color-bg-tertiary)',
-                color: 'var(--color-text-secondary)',
-              }}
-              title={t.profile.cancel}
-            >
-              <IconX size={16} />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span
-              className="font-semibold text-lg"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              {nombre}
-            </span>
-            <button
-              onClick={iniciarEdicion}
-              className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-bg-tertiary)]"
-              style={{ color: 'var(--color-text-muted)' }}
-              title={t.profile.editName}
-            >
-              <IconEdit size={15} />
-            </button>
-          </div>
-        )}
-
-        {error && (
-          <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{error}</p>
-        )}
-        {exito && (
-          <p className="text-xs" style={{ color: '#22c55e' }}>{t.profile.editSuccess}</p>
-        )}
+        {nombre?.charAt(0).toUpperCase() ?? <IconUser size={40} />}
       </div>
 
-      {/* Botón eliminar perfil */}
-      <button
-        onClick={onEliminarPerfil}
-        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
-        style={{
+      {editando ? (
+        <div className="w-full flex" style={{ gap: '0.75rem' }}>
+          <input
+            type="text"
+            value={nuevoNombre}
+            onChange={e => setNuevoNombre(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') guardarNombre()
+              if (e.key === 'Escape') cancelarEdicion()
+            }}
+            placeholder={t.profile.namePlaceholder}
+            autoFocus
+            className="flex-1 rounded-xl outline-none"
+            style={{
+              backgroundColor: 'var(--color-bg-tertiary)',
+              color: 'var(--color-text-primary)',
+              border: '2px solid var(--color-accent)',
+              padding: '0.75rem 1rem',
+              fontSize: '0.875rem'
+            }}
+          />
+          <button
+            onClick={guardarNombre}
+            disabled={guardando || !nuevoNombre.trim()}
+            className="rounded-xl transition-colors disabled:opacity-40"
+            style={{ 
+              backgroundColor: 'var(--color-accent)', 
+              color: '#fff',
+              padding: '0.75rem'
+            }}
+            title={t.common.save}
+          >
+            <IconCheck size={20} />
+          </button>
+          <button
+            onClick={cancelarEdicion}
+            className="rounded-xl transition-colors"
+            style={{
+              backgroundColor: 'var(--color-bg-tertiary)',
+              color: 'var(--color-text-secondary)',
+              padding: '0.75rem'
+            }}
+            title={t.profile.cancel}
+          >
+            <IconX size={20} />
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center" style={{ gap: '0.75rem' }}>
+          <span
+            className="font-bold"
+            style={{ 
+              color: 'var(--color-text-primary)',
+              fontSize: '1.25rem'
+            }}
+          >
+            {nombre}
+          </span>
+          <button
+            onClick={iniciarEdicion}
+            className="rounded-xl transition-colors hover:bg-[var(--color-bg-tertiary)]"
+            style={{ 
+              color: 'var(--color-text-muted)',
+              padding: '0.5rem'
+            }}
+            title={t.profile.editName}
+          >
+            <IconEdit size={18} />
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <p style={{ 
           color: 'var(--color-danger)',
-          border: '1.5px solid var(--color-danger)',
-          backgroundColor: 'transparent',
-        }}
-        onMouseEnter={e => {
-          ;(e.currentTarget as HTMLButtonElement).style.backgroundColor =
-            'rgba(239,68,68,0.08)'
-        }}
-        onMouseLeave={e => {
-          ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'
-        }}
-      >
-        <IconTrash size={15} />
-        {t.profile.delete}
-      </button>
+          fontSize: '0.875rem'
+        }}>{error}</p>
+      )}
+      {exito && (
+        <p style={{ 
+          color: '#22c55e',
+          fontSize: '0.875rem'
+        }}>{t.profile.editSuccess}</p>
+      )}
     </div>
-  )
+
+    {/* Botón eliminar perfil */}
+    <button
+      onClick={onEliminarPerfil}
+      className="w-full flex items-center justify-center font-semibold rounded-xl transition-colors"
+      style={{
+        color: 'var(--color-danger)',
+        border: '2px solid var(--color-danger)',
+        backgroundColor: 'transparent',
+        padding: '0.875rem',
+        gap: '0.5rem',
+        fontSize: '0.875rem'
+      }}
+      onMouseEnter={e => {
+        (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(239,68,68,0.1)'
+      }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'
+      }}
+    >
+      <IconTrash size={18} />
+      {t.profile.delete}
+    </button>
+  </div>
+)
 }

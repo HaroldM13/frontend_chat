@@ -25,35 +25,51 @@ export function Modal({ titulo, abierto, onCerrar, children }: Props) {
   if (!abierto) return null
 
   return (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
+    style={{ 
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      padding: '1.5rem'
+    }}
+    onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
+  >
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-      onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
+      className="w-full rounded-3xl shadow-2xl overflow-hidden animate-scale-in"
+      style={{ 
+        backgroundColor: 'var(--color-bg-secondary)',
+        border: '1px solid var(--color-border)',
+        maxWidth: '32rem'
+      }}
     >
+      {/* Header del modal */}
       <div
-        className="w-full max-w-md rounded-2xl shadow-lg overflow-hidden"
-        style={{ backgroundColor: 'var(--color-bg-secondary)' }}
+        className="flex items-center justify-between border-b"
+        style={{ 
+          borderColor: 'var(--color-border)',
+          padding: '1.5rem 1.75rem'
+        }}
       >
-        {/* Header del modal */}
-        <div
-          className="flex items-center justify-between px-5 py-4 border-b"
-          style={{ borderColor: 'var(--color-border)' }}
+        <h2 className="font-bold" style={{ 
+          color: 'var(--color-text-primary)',
+          fontSize: '1.125rem'
+        }}>
+          {titulo}
+        </h2>
+        <button
+          onClick={onCerrar}
+          className="rounded-xl transition-colors hover:bg-[var(--color-bg-tertiary)]"
+          style={{ 
+            color: 'var(--color-text-muted)',
+            padding: '0.5rem'
+          }}
         >
-          <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
-            {titulo}
-          </h2>
-          <button
-            onClick={onCerrar}
-            className="p-1 rounded-lg transition-colors"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            <IconX size={18} />
-          </button>
-        </div>
-
-        {/* Contenido */}
-        <div className="p-5">{children}</div>
+          <IconX size={20} />
+        </button>
       </div>
+
+      {/* Contenido */}
+      <div style={{ padding: '1.75rem' }}>{children}</div>
     </div>
-  )
+  </div>
+)
 }

@@ -82,185 +82,275 @@ export function PanelGrupos({ grupos, onActualizar, onIrAlChat, onCerrar }: Prop
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Formulario para crear grupo */}
-      <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-        <p className="text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-          {t.groups.create}
-        </p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={nuevoNombre}
-            onChange={e => setNuevoNombre(e.target.value)}
-            placeholder={t.groups.namePlaceholder}
-            onKeyDown={e => e.key === 'Enter' && crearGrupo()}
-            className="flex-1 px-3 py-2 rounded-lg text-sm outline-none"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border)',
-            }}
-          />
-          <button
-            onClick={crearGrupo}
-            disabled={cargando || !nuevoNombre.trim()}
-            className="px-3 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
-            style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
-          >
-            <IconPlus size={16} />
-          </button>
-        </div>
-        {error && (
-          <p className="text-xs mt-1" style={{ color: 'var(--color-danger)' }}>{error}</p>
-        )}
+  <div className="flex flex-col h-full" style={{ maxHeight: '600px' }}>
+    {/* Formulario para crear grupo */}
+    <div className="border-b" style={{ 
+      borderColor: 'var(--color-border)',
+      padding: '1.5rem'
+    }}>
+      <p className="font-semibold" style={{ 
+        color: 'var(--color-text-secondary)',
+        fontSize: '0.875rem',
+        marginBottom: '1rem'
+      }}>
+        {t.groups.create}
+      </p>
+      <div className="flex" style={{ gap: '0.75rem' }}>
+        <input
+          type="text"
+          value={nuevoNombre}
+          onChange={e => setNuevoNombre(e.target.value)}
+          placeholder={t.groups.namePlaceholder}
+          onKeyDown={e => e.key === 'Enter' && crearGrupo()}
+          className="flex-1 rounded-xl outline-none"
+          style={{
+            backgroundColor: 'var(--color-bg-tertiary)',
+            color: 'var(--color-text-primary)',
+            border: '1.5px solid var(--color-border)',
+            padding: '0.75rem 1rem',
+            fontSize: '0.875rem'
+          }}
+        />
+        <button
+          onClick={crearGrupo}
+          disabled={cargando || !nuevoNombre.trim()}
+          className="rounded-xl font-medium disabled:opacity-40"
+          style={{ 
+            backgroundColor: 'var(--color-accent)', 
+            color: '#fff',
+            padding: '0.75rem 1rem',
+            fontSize: '0.875rem'
+          }}
+        >
+          <IconPlus size={20} />
+        </button>
       </div>
+      {error && (
+        <p style={{ 
+          color: 'var(--color-danger)',
+          fontSize: '0.75rem',
+          marginTop: '0.5rem'
+        }}>{error}</p>
+      )}
+    </div>
 
-      {/* Lista de grupos */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        {grupos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 gap-2">
-            <IconUsersGroup size={32} style={{ color: 'var(--color-text-muted)' }} />
-            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              {t.groups.empty}
-            </p>
-          </div>
-        ) : (
-          grupos.map(g => {
-            const esCreador = g.creador_id === usuarioId
-            const expandido = grupoExpandido === g.id
+    {/* Lista de grupos */}
+    <div className="flex-1 overflow-y-auto" style={{ padding: '1.5rem' }}>
+      {grupos.length === 0 ? (
+        <div className="flex flex-col items-center justify-center" style={{ 
+          paddingTop: '3rem',
+          paddingBottom: '3rem',
+          gap: '0.75rem'
+        }}>
+          <IconUsersGroup size={40} style={{ color: 'var(--color-text-muted)' }} />
+          <p className="font-medium" style={{ 
+            color: 'var(--color-text-muted)',
+            fontSize: '0.875rem'
+          }}>
+            {t.groups.empty}
+          </p>
+        </div>
+      ) : (
+        grupos.map(g => {
+          const esCreador = g.creador_id === usuarioId
+          const expandido = grupoExpandido === g.id
 
-            return (
+          return (
+            <div
+              key={g.id}
+              className="border rounded-2xl overflow-hidden"
+              style={{ 
+                borderColor: 'var(--color-border)',
+                marginBottom: '1rem'
+              }}
+            >
+              {/* Cabecera del grupo */}
               <div
-                key={g.id}
-                className="border rounded-xl mb-3 overflow-hidden"
-                style={{ borderColor: 'var(--color-border)' }}
+                className="flex items-center cursor-pointer"
+                style={{ 
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  padding: '1.25rem',
+                  gap: '1rem'
+                }}
+                onClick={() => setGrupoExpandido(expandido ? null : g.id)}
               >
-                {/* Cabecera del grupo */}
                 <div
-                  className="flex items-center gap-3 p-3 cursor-pointer"
-                  style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
-                  onClick={() => setGrupoExpandido(expandido ? null : g.id)}
+                  className="rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ 
+                    backgroundColor: 'var(--color-accent-light)', 
+                    color: 'var(--color-accent)',
+                    width: '2.75rem',
+                    height: '2.75rem'
+                  }}
                 >
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
-                  >
-                    <IconUsersGroup size={18} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>
-                      {g.nombre}
-                    </p>
-                    <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                      {g.miembros.length} {t.groups.members}
-                      {esCreador && ` · ${t.groups.createdBy} ${t.groups.you}`}
-                    </p>
-                  </div>
-                  <span style={{ color: 'var(--color-text-muted)' }}>
-                    {expandido ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
-                  </span>
+                  <IconUsersGroup size={22} />
                 </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold truncate" style={{ 
+                    color: 'var(--color-text-primary)',
+                    fontSize: '0.875rem',
+                    marginBottom: '0.125rem'
+                  }}>
+                    {g.nombre}
+                  </p>
+                  <p style={{ 
+                    color: 'var(--color-text-muted)',
+                    fontSize: '0.75rem'
+                  }}>
+                    {g.miembros.length} {t.groups.members}
+                    {esCreador && ` · ${t.groups.createdBy} ${t.groups.you}`}
+                  </p>
+                </div>
+                <span style={{ color: 'var(--color-text-muted)' }}>
+                  {expandido ? <IconChevronUp size={20} /> : <IconChevronDown size={20} />}
+                </span>
+              </div>
 
-                {/* Detalle expandido */}
-                {expandido && (
-                  <div className="p-3 space-y-3">
-                    {/* Botón de ir al chat */}
-                    <button
-                      onClick={() => {
-                        onIrAlChat({ tipo: 'grupo', id: g.id, nombre: g.nombre })
-                        onCerrar()
-                      }}
-                      className="w-full py-2 rounded-lg text-sm font-medium text-center"
-                      style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
-                    >
-                      {t.contacts.chat}
-                    </button>
+              {/* Detalle expandido */}
+              {expandido && (
+                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {/* Botón de ir al chat */}
+                  <button
+                    onClick={() => {
+                      onIrAlChat({ tipo: 'grupo', id: g.id, nombre: g.nombre })
+                      onCerrar()
+                    }}
+                    className="w-full text-center font-semibold rounded-xl transition-colors hover:opacity-90"
+                    style={{ 
+                      backgroundColor: 'var(--color-accent)', 
+                      color: '#fff',
+                      padding: '0.75rem',
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {t.contacts.chat}
+                  </button>
 
-                    {/* Lista de miembros */}
-                    <div>
-                      <p className="text-xs font-semibold mb-1" style={{ color: 'var(--color-text-muted)' }}>
-                        {t.groups.membersList}
-                      </p>
-                      {g.miembros.map(m => (
-                        <div key={m.id} className="flex items-center gap-2 py-1">
-                          <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                            style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
-                          >
-                            {m.nombre.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                            {m.nombre} {m.id === usuarioId && `(${t.chat.you})`}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Agregar miembro */}
-                    {agregandoEn === g.id ? (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={telefonoMiembro}
-                          onChange={e => setTelefonoMiembro(e.target.value)}
-                          placeholder={t.groups.addMemberPlaceholder}
-                          onKeyDown={e => e.key === 'Enter' && agregarMiembro(g.id)}
-                          className="flex-1 px-3 py-1.5 rounded-lg text-xs outline-none"
-                          style={{
-                            backgroundColor: 'var(--color-bg-primary)',
-                            color: 'var(--color-text-primary)',
-                            border: '1px solid var(--color-border)',
+                  {/* Lista de miembros */}
+                  <div>
+                    <p className="font-bold uppercase" style={{ 
+                      color: 'var(--color-text-muted)',
+                      fontSize: '0.6875rem',
+                      letterSpacing: '0.05em',
+                      marginBottom: '0.75rem'
+                    }}>
+                      {t.groups.membersList}
+                    </p>
+                    {g.miembros.map(m => (
+                      <div key={m.id} className="flex items-center" style={{ 
+                        gap: '0.75rem',
+                        padding: '0.5rem 0'
+                      }}>
+                        <div
+                          className="rounded-xl flex items-center justify-center font-bold"
+                          style={{ 
+                            backgroundColor: 'var(--color-accent-light)', 
+                            color: 'var(--color-accent)',
+                            width: '2rem',
+                            height: '2rem',
+                            fontSize: '0.75rem'
                           }}
-                        />
-                        <button
-                          onClick={() => agregarMiembro(g.id)}
-                          className="px-2 rounded-lg text-xs"
-                          style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
                         >
-                          <IconPlus size={14} />
-                        </button>
+                          {m.nombre.charAt(0).toUpperCase()}
+                        </div>
+                        <span style={{ 
+                          color: 'var(--color-text-secondary)',
+                          fontSize: '0.875rem'
+                        }}>
+                          {m.nombre} {m.id === usuarioId && `(${t.chat.you})`}
+                        </span>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Agregar miembro */}
+                  {agregandoEn === g.id ? (
+                    <div className="flex" style={{ gap: '0.75rem' }}>
+                      <input
+                        type="text"
+                        value={telefonoMiembro}
+                        onChange={e => setTelefonoMiembro(e.target.value)}
+                        placeholder={t.groups.addMemberPlaceholder}
+                        onKeyDown={e => e.key === 'Enter' && agregarMiembro(g.id)}
+                        className="flex-1 rounded-xl outline-none"
+                        style={{
+                          backgroundColor: 'var(--color-bg-primary)',
+                          color: 'var(--color-text-primary)',
+                          border: '1.5px solid var(--color-border)',
+                          padding: '0.625rem 0.875rem',
+                          fontSize: '0.875rem'
+                        }}
+                      />
+                      <button
+                        onClick={() => agregarMiembro(g.id)}
+                        className="rounded-xl"
+                        style={{ 
+                          backgroundColor: 'var(--color-accent)', 
+                          color: '#fff',
+                          padding: '0.625rem 0.875rem',
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        <IconPlus size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setAgregandoEn(g.id)}
+                      className="flex items-center font-medium"
+                      style={{ 
+                        color: 'var(--color-accent)',
+                        gap: '0.5rem',
+                        fontSize: '0.875rem'
+                      }}
+                    >
+                      <IconUserPlus size={18} />
+                      {t.groups.addMember}
+                    </button>
+                  )}
+
+                  {/* Acciones del grupo */}
+                  <div className="flex" style={{ gap: '0.75rem', paddingTop: '0.5rem' }}>
+                    {esCreador ? (
+                      <button
+                        onClick={() => eliminarGrupo(g.id)}
+                        className="flex items-center font-medium rounded-xl"
+                        style={{ 
+                          backgroundColor: 'var(--color-danger)', 
+                          color: '#fff',
+                          padding: '0.625rem 1.25rem',
+                          gap: '0.5rem',
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        <IconTrash size={16} />
+                        {t.groups.delete}
+                      </button>
                     ) : (
                       <button
-                        onClick={() => setAgregandoEn(g.id)}
-                        className="flex items-center gap-1.5 text-xs"
-                        style={{ color: 'var(--color-accent)' }}
+                        onClick={() => salirGrupo(g.id)}
+                        className="flex items-center font-medium rounded-xl"
+                        style={{ 
+                          border: '1.5px solid var(--color-danger)', 
+                          color: 'var(--color-danger)',
+                          padding: '0.625rem 1.25rem',
+                          gap: '0.5rem',
+                          fontSize: '0.875rem',
+                          backgroundColor: 'transparent'
+                        }}
                       >
-                        <IconUserPlus size={14} />
-                        {t.groups.addMember}
+                        <IconDoorExit size={16} />
+                        {t.groups.leave}
                       </button>
                     )}
-
-                    {/* Acciones del grupo */}
-                    <div className="flex gap-2 pt-1">
-                      {esCreador ? (
-                        <button
-                          onClick={() => eliminarGrupo(g.id)}
-                          className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg"
-                          style={{ backgroundColor: 'var(--color-danger)', color: '#fff' }}
-                        >
-                          <IconTrash size={13} />
-                          {t.groups.delete}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => salirGrupo(g.id)}
-                          className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg"
-                          style={{ border: '1px solid var(--color-danger)', color: 'var(--color-danger)' }}
-                        >
-                          <IconDoorExit size={13} />
-                          {t.groups.leave}
-                        </button>
-                      )}
-                    </div>
                   </div>
-                )}
-              </div>
-            )
-          })
-        )}
-      </div>
+                </div>
+              )}
+            </div>
+          )
+        })
+      )}
     </div>
-  )
+  </div>
+)
 }
