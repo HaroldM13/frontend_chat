@@ -99,8 +99,9 @@ export function BurbujaMensaje({ mensaje }: Props) {
             src={`${API_URL}${mensaje.contenido}`}
             alt="imagen"
             style={{
-              maxWidth: '260px',
+              maxWidth: 'min(260px, 100%)',
               maxHeight: '320px',
+              width: '100%',
               borderRadius: '0.75rem',
               display: 'block',
               cursor: 'pointer',

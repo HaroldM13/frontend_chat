@@ -79,7 +79,7 @@ export function BarraEstados({ estados, usuarioId, onVerEstado, onSubirEstado }:
       }}
     >
       <div
-        className="flex overflow-x-auto"
+        className="flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
         style={{ gap: '1rem', padding: '0 1.5rem', scrollbarWidth: 'none' }}
       >
         {/* Propio estado */}

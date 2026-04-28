@@ -13,6 +13,7 @@ export function LoginPage() {
 
   const [modo, setModo] = useState<"login" | "registro">("login");
   const [paso, setPaso] = useState<"telefono" | "codigo">("telefono");
+  const [usarOtp, setUsarOtp] = useState(false);
   const [telefono, setTelefono] = useState("");
   const [nombre, setNombre] = useState("");
   const [codigo, setCodigo] = useState("");
@@ -28,10 +29,18 @@ export function LoginPage() {
         // Login directo sin OTP
         const respuesta = await authApi.login(telefono.trim());
         login(respuesta.access_token, respuesta.usuario_id, respuesta.nombre);
-      } else {
-        // Registro: enviar OTP primero
+      } else if (usarOtp) {
+        // Registro con OTP: enviar código primero
         await authApi.enviarOtp(telefono.trim());
         setPaso("codigo");
+      } else {
+        // Registro sin OTP: directo
+        const respuesta = await authApi.registro({
+          nombre: nombre.trim(),
+          telefono: telefono.trim(),
+          codigo: "",
+        });
+        login(respuesta.access_token, respuesta.usuario_id, respuesta.nombre);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : t.common.error);
@@ -228,6 +237,47 @@ export function LoginPage() {
             />
           </div>
 
+          {/* Toggle verificación SMS — solo en registro */}
+          {modo === "registro" && (
+            <div
+              className="flex items-center justify-between"
+              style={{
+                backgroundColor: "var(--color-bg-tertiary)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "0.75rem",
+                padding: "0.875rem 1rem",
+                marginBottom: "1.5rem",
+                cursor: "pointer",
+              }}
+              onClick={() => setUsarOtp(v => !v)}
+            >
+              <span style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                Verificar número con SMS
+              </span>
+              <div
+                className="relative flex-shrink-0 transition-colors duration-200"
+                style={{
+                  width: "2.5rem",
+                  height: "1.375rem",
+                  backgroundColor: usarOtp ? "var(--color-accent)" : "var(--color-border)",
+                  borderRadius: "9999px",
+                }}
+              >
+                <div
+                  className="absolute top-0.5 transition-transform duration-200"
+                  style={{
+                    width: "1rem",
+                    height: "1rem",
+                    backgroundColor: "#fff",
+                    borderRadius: "9999px",
+                    transform: usarOtp ? "translateX(1.25rem)" : "translateX(0.1875rem)",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="flex items-start gap-2" style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "0.75rem", padding: "0.875rem 1rem", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
               <span style={{ fontWeight: "500" }}>⚠</span>
@@ -241,7 +291,7 @@ export function LoginPage() {
             className="w-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
             style={{ backgroundColor: "var(--color-accent)", color: "#fff", borderRadius: "0.75rem", padding: "0.875rem", fontSize: "0.875rem", marginTop: "0.5rem", boxShadow: cargando ? "none" : "0 4px 12px rgba(59, 130, 246, 0.3)", border: "none", cursor: cargando ? "not-allowed" : "pointer" }}
           >
-            {cargando ? t.common.loading : modo === "login" ? t.auth.loginBtn : t.auth.sendCode}
+            {cargando ? t.common.loading : modo === "login" || !usarOtp ? t.auth.loginBtn : t.auth.sendCode}
           </button>
         </form>
       )}

@@ -52,8 +52,8 @@ export function InputMensaje({ onEnviar, onEnviarImagen, deshabilitado = false }
       backgroundColor: 'var(--color-bg-secondary)',
       borderColor: 'var(--color-border)',
       boxShadow: '0 -2px 12px rgba(0,0,0,0.06)',
-      padding: '1.25rem 1.5rem',
-      gap: '1rem'
+      padding: '0.75rem 0.75rem',
+      gap: '0.5rem'
     }}
   >
     {/* Input oculto para seleccionar imagen */}
