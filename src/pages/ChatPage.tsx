@@ -14,7 +14,9 @@ import {
   gruposApi,
   mensajesApi,
   usuariosApi,
+  estadosApi,
 } from "../services/api";
+import { ModalVisorEstado } from "../components/ModalVisorEstado";
 import { useWebSocket } from "../hooks/useWebSocket";
 import type {
   Contacto,
@@ -22,6 +24,7 @@ import type {
   ChatActivo,
   Mensaje,
   MensajeWS,
+  Estado,
 } from "../interfaces";
 import { IconMessageCircle, IconMenu2 } from "@tabler/icons-react";
 
@@ -39,6 +42,10 @@ export function ChatPage() {
 
   // Presencias de contactos (polling cada 30 s)
   const [presencias, setPresencias] = useState<Record<string, boolean>>({});
+
+  // Estados (stories)
+  const [estados, setEstados] = useState<Estado[]>([]);
+  const [estadoVisor, setEstadoVisor] = useState<Estado | null>(null);
 
   // Visibilidad de la barra lateral
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -102,6 +109,21 @@ export function ChatPage() {
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
+
+  // Cargar y refrescar estados cada 60 s
+  const cargarEstados = useCallback(async () => {
+    if (!token) return;
+    try {
+      const lista = await estadosApi.listar(token);
+      setEstados(lista);
+    } catch { /* ignorar */ }
+  }, [token]);
+
+  useEffect(() => {
+    cargarEstados();
+    const id = setInterval(cargarEstados, 60_000);
+    return () => clearInterval(id);
+  }, [cargarEstados]);
 
   // Polling de presencias cada 30 s
   useEffect(() => {
@@ -232,6 +254,39 @@ export function ChatPage() {
     }
   };
 
+  const manejarSubirEstado = async (archivo: File) => {
+    if (!token) return;
+    try {
+      const nuevo = await estadosApi.subir(archivo, token);
+      setEstados(prev => [nuevo, ...prev.filter(e => e.usuario_id !== nuevo.usuario_id)]);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : t.common.error);
+    }
+  };
+
+  const manejarEliminarEstado = async (estadoId: string) => {
+    if (!token) return;
+    try {
+      await estadosApi.eliminar(estadoId, token);
+      setEstados(prev => prev.filter(e => e.id !== estadoId));
+    } catch { /* ignorar */ }
+  };
+
+  const manejarEnviarImagen = async (archivo: File) => {
+    if (!chatActivo || !token) return;
+    try {
+      await mensajesApi.subirImagen(
+        archivo,
+        chatActivo.tipo,
+        token,
+        chatActivo.tipo === "privado" ? chatActivo.id : undefined,
+        chatActivo.tipo === "grupo" ? chatActivo.id : undefined,
+      );
+    } catch (e) {
+      alert(e instanceof Error ? e.message : t.common.error);
+    }
+  };
+
   return (
   <div
     className="flex h-screen overflow-hidden"
@@ -244,6 +299,7 @@ export function ChatPage() {
       chatActivo={chatActivo}
       visible={sidebarVisible}
       presencias={presencias}
+      estados={estados}
       onCerrar={() => setSidebarVisible(false)}
       onSeleccionarChat={(chat) => {
         setChatActivo(chat);
@@ -252,6 +308,8 @@ export function ChatPage() {
       onAbrirContactos={() => setModalContactos(true)}
       onAbrirGrupos={() => setModalGrupos(true)}
       onAbrirPerfil={() => setModalPerfil(true)}
+      onVerEstado={setEstadoVisor}
+      onSubirEstado={manejarSubirEstado}
     />
 
     {/* Panel de chat */}
@@ -280,7 +338,7 @@ export function ChatPage() {
             mensajes={todosMensajes}
             cargando={cargandoHistorial}
           />
-          <InputMensaje onEnviar={enviar} deshabilitado={!conectado} />
+          <InputMensaje onEnviar={enviar} onEnviarImagen={manejarEnviarImagen} deshabilitado={!conectado} />
         </>
       ) : (
         /* Pantalla de bienvenida */
@@ -411,6 +469,15 @@ export function ChatPage() {
         </div>
       </div>
     </Modal>
+
+    {/* Visor de estados */}
+    {estadoVisor && (
+      <ModalVisorEstado
+        estado={estadoVisor}
+        onCerrar={() => setEstadoVisor(null)}
+        onEliminar={manejarEliminarEstado}
+      />
+    )}
 
     {/* Modal Eliminar conversación */}
     <Modal

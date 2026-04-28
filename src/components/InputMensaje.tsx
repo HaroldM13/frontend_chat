@@ -1,19 +1,21 @@
 /**
- * Input de mensaje con textarea auto-expandible.
+ * Input de mensaje con textarea auto-expandible y botón de imagen.
  * Enter envía, Shift+Enter hace salto de línea.
  */
-import { useState, type KeyboardEvent } from 'react'
-import { IconSend } from '@tabler/icons-react'
+import { useState, useRef, type KeyboardEvent } from 'react'
+import { IconSend, IconPhoto } from '@tabler/icons-react'
 import { useIdioma } from '../context/IdiomaContext'
 
 interface Props {
   onEnviar: (contenido: string) => void
+  onEnviarImagen?: (archivo: File) => void
   deshabilitado?: boolean
 }
 
-export function InputMensaje({ onEnviar, deshabilitado = false }: Props) {
+export function InputMensaje({ onEnviar, onEnviarImagen, deshabilitado = false }: Props) {
   const { t } = useIdioma()
   const [texto, setTexto] = useState('')
+  const inputImagenRef = useRef<HTMLInputElement>(null)
 
   const enviar = () => {
     const contenido = texto.trim()
@@ -26,6 +28,18 @@ export function InputMensaje({ onEnviar, deshabilitado = false }: Props) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       enviar()
+    }
+  }
+
+  const seleccionarImagen = () => {
+    if (!deshabilitado) inputImagenRef.current?.click()
+  }
+
+  const manejarImagen = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const archivo = e.target.files?.[0]
+    if (archivo && onEnviarImagen) {
+      onEnviarImagen(archivo)
+      e.target.value = ''
     }
   }
 
@@ -42,6 +56,35 @@ export function InputMensaje({ onEnviar, deshabilitado = false }: Props) {
       gap: '1rem'
     }}
   >
+    {/* Input oculto para seleccionar imagen */}
+    <input
+      ref={inputImagenRef}
+      type="file"
+      accept="image/*"
+      style={{ display: 'none' }}
+      onChange={manejarImagen}
+    />
+
+    {/* Botón imagen */}
+    {onEnviarImagen && (
+      <button
+        type="button"
+        onClick={seleccionarImagen}
+        disabled={deshabilitado}
+        className="flex-shrink-0 flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
+        style={{
+          backgroundColor: 'var(--color-bg-tertiary)',
+          color: 'var(--color-text-muted)',
+          border: '1px solid var(--color-border)',
+          width: '3rem',
+          height: '3rem',
+        }}
+        title="Enviar imagen"
+      >
+        <IconPhoto size={20} />
+      </button>
+    )}
+
     <textarea
       value={texto}
       onChange={e => setTexto(e.target.value)}

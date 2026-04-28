@@ -104,6 +104,16 @@ const es = {
     cancel: 'Cancelar',
   },
 
+  // Estados (stories)
+  estados: {
+    title: 'Estados',
+    my: 'Mi estado',
+    add: 'Añadir estado',
+    noEstados: 'Sin estados activos',
+    minLeft: 'min restantes',
+    delete: 'Eliminar mi estado',
+  },
+
   // Errores y estados
   common: {
     error: 'Error',

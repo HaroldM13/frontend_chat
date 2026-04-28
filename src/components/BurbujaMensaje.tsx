@@ -5,6 +5,7 @@
  */
 import type { Mensaje, MensajeWS } from '../interfaces'
 import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../services/api'
 
 interface Props {
   mensaje: Mensaje | MensajeWS
@@ -82,17 +83,33 @@ export function BurbujaMensaje({ mensaje }: Props) {
             : 'var(--color-text-message-other)',
           borderRadius: esPropio ? '1.25rem 1.25rem 0.375rem 1.25rem' : '1.25rem 1.25rem 1.25rem 0.375rem',
           border: esPropio ? 'none' : '1px solid var(--color-border)',
-          padding: '0.875rem 1.125rem',
+          padding: mensaje.subtipo === 'imagen' ? '0.375rem' : '0.875rem 1.125rem',
           maxWidth: '100%',
           minWidth: '4rem',
           fontSize: '0.9375rem',
           lineHeight: '1.5',
-          boxShadow: esPropio 
-            ? '0 2px 8px rgba(30, 77, 140, 0.25)' 
+          boxShadow: esPropio
+            ? '0 2px 8px rgba(30, 77, 140, 0.25)'
             : 'var(--shadow-msg)',
+          overflow: 'hidden',
         }}
       >
-        {mensaje.contenido}
+        {mensaje.subtipo === 'imagen' ? (
+          <img
+            src={`${API_URL}${mensaje.contenido}`}
+            alt="imagen"
+            style={{
+              maxWidth: '260px',
+              maxHeight: '320px',
+              borderRadius: '0.75rem',
+              display: 'block',
+              cursor: 'pointer',
+            }}
+            onClick={() => window.open(`${API_URL}${mensaje.contenido}`, '_blank')}
+          />
+        ) : (
+          mensaje.contenido
+        )}
       </div>
 
       {/* Hora + checkmarks */}

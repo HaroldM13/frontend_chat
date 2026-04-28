@@ -23,6 +23,7 @@ export type TipoMensaje = 'sala' | 'privado' | 'grupo'
 export interface Mensaje {
   id: string
   tipo: TipoMensaje
+  subtipo?: 'imagen'
   remitente_id: string
   nombre_remitente: string
   contenido: string
@@ -35,6 +36,7 @@ export interface Mensaje {
 export interface MensajeWS {
   id: string
   tipo: TipoMensaje | 'mensajes_leidos'
+  subtipo?: 'imagen'
   remitente_id: string
   nombre_remitente: string
   contenido: string
@@ -49,6 +51,16 @@ export interface MensajeWS {
 // ─── Chat activo ───────────────────────────────────────────────────────────
 export type TipoChat = 'sala' | 'privado' | 'grupo'
 export interface ChatActivo { tipo: TipoChat; id?: string; nombre: string }
+
+// ─── Estados (stories) ─────────────────────────────────────────────────────
+export interface Estado {
+  id: string
+  usuario_id: string
+  nombre_usuario: string
+  url_imagen: string
+  created_at: string
+  expira_at: string
+}
 
 // ─── Tema, idioma, presencia ───────────────────────────────────────────────
 export type Tema = 'light' | 'dark'

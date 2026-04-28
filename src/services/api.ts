@@ -1,11 +1,11 @@
 import type {
-  AuthResponse, RegistroPayload,
+  AuthResponse, RegistroPayload, Estado,
   Contacto, AgregarContactoPayload,
   Grupo, CrearGrupoPayload, AgregarMiembroPayload,
   Mensaje, Usuario, Presencia,
 } from '../interfaces'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 async function peticion<T>(endpoint: string, opciones: RequestInit = {}, token?: string | null): Promise<T> {
   const headers: Record<string, string> = {
@@ -109,6 +109,30 @@ export const mensajesApi = {
   historialGrupo: (grupoId: string, token: string, limite = 50) =>
     peticion<Mensaje[]>(`/mensajes/grupo/${grupoId}?limite=${limite}`, {}, token),
 
+  subirImagen: async (
+    archivo: File,
+    tipochat: string,
+    token: string,
+    destinatarioId?: string,
+    grupoId?: string,
+  ) => {
+    const form = new FormData()
+    form.append('archivo', archivo)
+    form.append('tipo_chat', tipochat)
+    if (destinatarioId) form.append('destinatario_id', destinatarioId)
+    if (grupoId) form.append('grupo_id', grupoId)
+    const res = await fetch(`${API_URL}/mensajes/imagen`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Error desconocido' }))
+      throw new Error(err.detail || `Error ${res.status}`)
+    }
+    return res.json()
+  },
+
   marcarLeidos: (otroUsuarioId: string, token: string) =>
     peticion<{ leidos: number }>(`/mensajes/privado/${otroUsuarioId}/leer`, {
       method: 'POST',
@@ -118,4 +142,28 @@ export const mensajesApi = {
     peticion<{ mensaje: string; mensajes_eliminados: number }>(`/mensajes/privado/${otroUsuarioId}`, {
       method: 'DELETE',
     }, token),
+}
+
+// ─── Estados ───────────────────────────────────────────────────────────────
+export const estadosApi = {
+  listar: (token: string) =>
+    peticion<Estado[]>('/estados', {}, token),
+
+  subir: async (archivo: File, token: string): Promise<Estado> => {
+    const form = new FormData()
+    form.append('archivo', archivo)
+    const res = await fetch(`${API_URL}/estados`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Error desconocido' }))
+      throw new Error(err.detail || `Error ${res.status}`)
+    }
+    return res.json()
+  },
+
+  eliminar: (estadoId: string, token: string) =>
+    peticion<{ mensaje: string }>(`/estados/${estadoId}`, { method: 'DELETE' }, token),
 }

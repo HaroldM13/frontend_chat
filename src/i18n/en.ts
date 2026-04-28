@@ -100,6 +100,15 @@ const en: Translations = {
     cancel: 'Cancel',
   },
 
+  estados: {
+    title: 'Status',
+    my: 'My status',
+    add: 'Add status',
+    noEstados: 'No active status',
+    minLeft: 'min left',
+    delete: 'Delete my status',
+  },
+
   common: {
     error: 'Error',
     success: 'Success',

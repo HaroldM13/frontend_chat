@@ -22,7 +22,8 @@ import { useAuth } from "../context/AuthContext";
 import { useTema } from "../context/TemaContext";
 import { useIdioma } from "../context/IdiomaContext";
 import { authApi } from "../services/api";
-import type { Contacto, Grupo, ChatActivo, Idioma } from "../interfaces";
+import type { Contacto, Grupo, ChatActivo, Idioma, Estado } from "../interfaces";
+import { BarraEstados } from "./BarraEstados";
 
 interface Props {
   grupos: Grupo[];
@@ -30,11 +31,14 @@ interface Props {
   chatActivo: ChatActivo | null;
   visible: boolean;
   presencias: Record<string, boolean>;
+  estados: Estado[];
   onCerrar: () => void;
   onSeleccionarChat: (chat: ChatActivo) => void;
   onAbrirContactos: () => void;
   onAbrirGrupos: () => void;
   onAbrirPerfil: () => void;
+  onVerEstado: (estado: Estado) => void;
+  onSubirEstado: (archivo: File) => void;
 }
 
 export function BarraLateral({
@@ -43,13 +47,16 @@ export function BarraLateral({
   chatActivo,
   visible,
   presencias,
+  estados,
   onCerrar,
   onSeleccionarChat,
   onAbrirContactos,
   onAbrirGrupos,
   onAbrirPerfil,
+  onVerEstado,
+  onSubirEstado,
 }: Props) {
-  const { nombre, token, logout } = useAuth();
+  const { nombre, token, logout, usuarioId } = useAuth();
   const { tema, toggleTema } = useTema();
   const { t, idioma, cambiarIdioma } = useIdioma();
   const [busqueda, setBusqueda] = useState("");
@@ -263,6 +270,14 @@ export function BarraLateral({
 
       {/* Lista de conversaciones */}
       <div className="flex-1 overflow-y-auto">
+        {/* Estados */}
+        <BarraEstados
+          estados={estados}
+          usuarioId={usuarioId ?? ''}
+          onVerEstado={onVerEstado}
+          onSubirEstado={onSubirEstado}
+        />
+
         {/* Sala General */}
         <button
           onClick={() => seleccionar({ tipo: 'sala', nombre: t.chat.generalRoom })}
