@@ -1,5 +1,5 @@
 import type {
-  AuthResponse, LoginPayload, RegistroPayload,
+  AuthResponse, RegistroPayload,
   Contacto, AgregarContactoPayload,
   Grupo, CrearGrupoPayload, AgregarMiembroPayload,
   Mensaje, Usuario, Presencia,
@@ -26,10 +26,12 @@ async function peticion<T>(endpoint: string, opciones: RequestInit = {}, token?:
 
 // ─── Autenticación ─────────────────────────────────────────────────────────
 export const authApi = {
+  enviarOtp: (telefono: string) =>
+    peticion<{ mensaje: string }>('/auth/enviar-otp', { method: 'POST', body: JSON.stringify({ telefono }) }),
   registro: (datos: RegistroPayload) =>
     peticion<AuthResponse>('/auth/registro', { method: 'POST', body: JSON.stringify(datos) }),
-  login: (datos: LoginPayload) =>
-    peticion<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(datos) }),
+  login: (telefono: string) =>
+    peticion<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify({ telefono }) }),
   logout: (token: string) =>
     peticion<{ mensaje: string }>('/auth/logout', { method: 'POST' }, token),
 }

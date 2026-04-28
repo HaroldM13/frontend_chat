@@ -12,32 +12,56 @@ export function LoginPage() {
   const { t, idioma, cambiarIdioma } = useIdioma();
 
   const [modo, setModo] = useState<"login" | "registro">("login");
+  const [paso, setPaso] = useState<"telefono" | "codigo">("telefono");
   const [telefono, setTelefono] = useState("");
   const [nombre, setNombre] = useState("");
+  const [codigo, setCodigo] = useState("");
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
 
-  const manejarSubmit = async (e: React.FormEvent) => {
+  const manejarEnviarOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setCargando(true);
-
     try {
-      let respuesta;
       if (modo === "login") {
-        respuesta = await authApi.login({ telefono: telefono.trim() });
+        // Login directo sin OTP
+        const respuesta = await authApi.login(telefono.trim());
+        login(respuesta.access_token, respuesta.usuario_id, respuesta.nombre);
       } else {
-        respuesta = await authApi.registro({
-          nombre: nombre.trim(),
-          telefono: telefono.trim(),
-        });
+        // Registro: enviar OTP primero
+        await authApi.enviarOtp(telefono.trim());
+        setPaso("codigo");
       }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t.common.error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const manejarVerificar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setCargando(true);
+    try {
+      const respuesta = await authApi.registro({
+        nombre: nombre.trim(),
+        telefono: telefono.trim(),
+        codigo: codigo.trim(),
+      });
       login(respuesta.access_token, respuesta.usuario_id, respuesta.nombre);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.common.error);
     } finally {
       setCargando(false);
     }
+  };
+
+  const volverATelefono = () => {
+    setPaso("telefono");
+    setCodigo("");
+    setError("");
   };
 
   return (
@@ -137,181 +161,169 @@ export function LoginPage() {
         </p>
       </div>
 
-      {/* Tabs de modo */}
-      <div
-        className="flex"
-        style={{ 
-          backgroundColor: "var(--color-bg-tertiary)",
-          borderRadius: "1rem",
-          padding: "0.375rem",
-          marginBottom: "2rem" // ← MÁS ESPACIO
-        }}
-      >
-        {(["login", "registro"] as const).map((m) => (
-          <button
-            key={m}
-            onClick={() => {
-              setModo(m);
-              setError("");
-            }}
-            className="flex-1 font-semibold transition-all duration-200"
-            style={{
-              backgroundColor: modo === m ? "var(--color-accent)" : "transparent",
-              color: modo === m ? "#fff" : "var(--color-text-secondary)",
-              padding: "0.625rem",
-              borderRadius: "0.75rem",
-              fontSize: "0.875rem"
-            }}
-          >
-            {m === "login" ? t.auth.login : t.auth.register}
-          </button>
-        ))}
-      </div>
-
-      {/* Formulario */}
-      <form onSubmit={manejarSubmit}>
-        {/* Campo nombre (solo registro) */}
-        {modo === "registro" && (
-          <div style={{ marginBottom: "1.5rem" }}> {/* ← MÁS ESPACIO ENTRE CAMPOS */}
-            <label
-              className="block font-medium"
-              style={{ 
-                color: "var(--color-text-secondary)",
-                fontSize: "0.875rem",
-                marginBottom: "0.5rem"
+      {/* Tabs de modo — solo en paso teléfono */}
+      {paso === "telefono" && (
+        <div
+          className="flex"
+          style={{
+            backgroundColor: "var(--color-bg-tertiary)",
+            borderRadius: "1rem",
+            padding: "0.375rem",
+            marginBottom: "2rem"
+          }}
+        >
+          {(["login", "registro"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => { setModo(m); setError(""); }}
+              className="flex-1 font-semibold transition-all duration-200"
+              style={{
+                backgroundColor: modo === m ? "var(--color-accent)" : "transparent",
+                color: modo === m ? "#fff" : "var(--color-text-secondary)",
+                padding: "0.625rem",
+                borderRadius: "0.75rem",
+                fontSize: "0.875rem"
               }}
             >
-              {t.auth.name}
+              {m === "login" ? t.auth.login : t.auth.register}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Paso 1: Ingresar teléfono */}
+      {paso === "telefono" && (
+        <form onSubmit={manejarEnviarOtp}>
+          {modo === "registro" && (
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label className="block font-medium" style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem", marginBottom: "0.5rem" }}>
+                {t.auth.name}
+              </label>
+              <input
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder={t.auth.namePlaceholder}
+                required
+                minLength={2}
+                className="w-full outline-none transition-all"
+                style={{ backgroundColor: "var(--color-bg-tertiary)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", padding: "0.875rem 1rem", fontSize: "0.875rem" }}
+              />
+            </div>
+          )}
+
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label className="block font-medium" style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem", marginBottom: "0.5rem" }}>
+              {t.auth.phone}
+            </label>
+            <input
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder={t.auth.phonePlaceholder}
+              required
+              minLength={7}
+              className="w-full outline-none transition-all"
+              style={{ backgroundColor: "var(--color-bg-tertiary)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", padding: "0.875rem 1rem", fontSize: "0.875rem" }}
+            />
+          </div>
+
+          {error && (
+            <div className="flex items-start gap-2" style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "0.75rem", padding: "0.875rem 1rem", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+              <span style={{ fontWeight: "500" }}>⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={cargando}
+            className="w-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+            style={{ backgroundColor: "var(--color-accent)", color: "#fff", borderRadius: "0.75rem", padding: "0.875rem", fontSize: "0.875rem", marginTop: "0.5rem", boxShadow: cargando ? "none" : "0 4px 12px rgba(59, 130, 246, 0.3)", border: "none", cursor: cargando ? "not-allowed" : "pointer" }}
+          >
+            {cargando ? t.common.loading : modo === "login" ? t.auth.loginBtn : t.auth.sendCode}
+          </button>
+        </form>
+      )}
+
+      {/* Paso 2: Ingresar código OTP */}
+      {paso === "codigo" && (
+        <form onSubmit={manejarVerificar}>
+          <p className="text-center" style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+            {t.auth.otpSubtitle} <strong style={{ color: "var(--color-text-primary)" }}>{telefono}</strong>
+          </p>
+
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label className="block font-medium" style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem", marginBottom: "0.5rem" }}>
+              {t.auth.otpCode}
             </label>
             <input
               type="text"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              placeholder={t.auth.namePlaceholder}
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value)}
+              placeholder={t.auth.otpPlaceholder}
               required
-              minLength={2}
-              className="w-full outline-none transition-all"
-              style={{
-                backgroundColor: "var(--color-bg-tertiary)",
-                color: "var(--color-text-primary)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "0.75rem",
-                padding: "0.875rem 1rem", // ← INPUT MÁS ALTO
-                fontSize: "0.875rem"
-              }}
+              minLength={4}
+              maxLength={10}
+              autoFocus
+              className="w-full outline-none transition-all text-center tracking-widest"
+              style={{ backgroundColor: "var(--color-bg-tertiary)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", padding: "0.875rem 1rem", fontSize: "1.25rem", letterSpacing: "0.5rem" }}
             />
           </div>
-        )}
 
-        {/* Campo teléfono */}
-        <div style={{ marginBottom: "1.5rem" }}> {/* ← MÁS ESPACIO ENTRE CAMPOS */}
-          <label
-            className="block font-medium"
-            style={{ 
-              color: "var(--color-text-secondary)",
-              fontSize: "0.875rem",
-              marginBottom: "0.5rem"
-            }}
-          >
-            {t.auth.phone}
-          </label>
-          <input
-            type="tel"
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            placeholder={t.auth.phonePlaceholder}
-            required
-            minLength={7}
-            className="w-full outline-none transition-all"
-            style={{
-              backgroundColor: "var(--color-bg-tertiary)",
-              color: "var(--color-text-primary)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "0.75rem",
-              padding: "0.875rem 1rem", // ← INPUT MÁS ALTO
-              fontSize: "0.875rem"
-            }}
-          />
-        </div>
+          {error && (
+            <div className="flex items-start gap-2" style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "0.75rem", padding: "0.875rem 1rem", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+              <span style={{ fontWeight: "500" }}>⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
 
-        {/* Mensaje de error */}
-        {error && (
-          <div
-            className="flex items-start gap-2"
-            style={{
-              backgroundColor: "rgba(239, 68, 68, 0.1)",
-              color: "#ef4444",
-              border: "1px solid rgba(239, 68, 68, 0.2)",
-              borderRadius: "0.75rem",
-              padding: "0.875rem 1rem",
-              fontSize: "0.875rem",
-              marginBottom: "1.5rem"
-            }}
-          >
-            <span style={{ fontWeight: "500" }}>⚠</span>
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Botón de submit */}
-        <button
-          type="submit"
-          disabled={cargando}
-          className="w-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
-          style={{ 
-            backgroundColor: "var(--color-accent)", 
-            color: "#fff",
-            borderRadius: "0.75rem",
-            padding: "0.875rem", // ← BOTÓN MÁS ALTO
-            fontSize: "0.875rem",
-            marginTop: "0.5rem",
-            boxShadow: cargando ? "none" : "0 4px 12px rgba(59, 130, 246, 0.3)",
-            border: "none",
-            cursor: cargando ? "not-allowed" : "pointer"
-          }}
-        >
-          {cargando
-            ? t.common.loading
-            : modo === "login"
-              ? t.auth.loginBtn
-              : t.auth.registerBtn}
-        </button>
-      </form>
-
-      {/* Cambiar modo */}
-      <div 
-        style={{ 
-          marginTop: "2rem",
-          paddingTop: "1.5rem",
-          borderTop: "1px solid var(--color-border)"
-        }}
-      >
-        <p
-          className="text-center"
-          style={{ 
-            color: "var(--color-text-muted)",
-            fontSize: "0.875rem"
-          }}
-        >
-          {modo === "login" ? t.auth.noAccount : t.auth.hasAccount}{" "}
           <button
-            onClick={() => {
-              setModo(modo === "login" ? "registro" : "login");
-              setError("");
-            }}
-            className="font-semibold hover:underline transition-all"
-            style={{ 
-              color: "var(--color-accent)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0
-            }}
+            type="submit"
+            disabled={cargando}
+            className="w-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+            style={{ backgroundColor: "var(--color-accent)", color: "#fff", borderRadius: "0.75rem", padding: "0.875rem", fontSize: "0.875rem", boxShadow: cargando ? "none" : "0 4px 12px rgba(59, 130, 246, 0.3)", border: "none", cursor: cargando ? "not-allowed" : "pointer" }}
           >
-            {modo === "login" ? t.auth.register : t.auth.login}
+            {cargando ? t.common.loading : t.auth.otpVerify}
           </button>
-        </p>
-      </div>
+
+          <div style={{ marginTop: "1rem", display: "flex", gap: "0.75rem" }}>
+            <button
+              type="button"
+              onClick={volverATelefono}
+              className="flex-1 font-medium transition-all hover:opacity-80"
+              style={{ border: "1.5px solid var(--color-border)", color: "var(--color-text-secondary)", borderRadius: "0.75rem", padding: "0.75rem", fontSize: "0.875rem", background: "none", cursor: "pointer" }}
+            >
+              {t.auth.otpBack}
+            </button>
+            <button
+              type="button"
+              onClick={manejarEnviarOtp as unknown as React.MouseEventHandler}
+              disabled={cargando}
+              className="flex-1 font-medium transition-all hover:opacity-80 disabled:opacity-50"
+              style={{ border: "1.5px solid var(--color-accent)", color: "var(--color-accent)", borderRadius: "0.75rem", padding: "0.75rem", fontSize: "0.875rem", background: "none", cursor: "pointer" }}
+            >
+              {t.auth.otpResend}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Cambiar modo — solo en paso teléfono */}
+      {paso === "telefono" && (
+        <div style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid var(--color-border)" }}>
+          <p className="text-center" style={{ color: "var(--color-text-muted)", fontSize: "0.875rem" }}>
+            {modo === "login" ? t.auth.noAccount : t.auth.hasAccount}{" "}
+            <button
+              onClick={() => { setModo(modo === "login" ? "registro" : "login"); setError(""); }}
+              className="font-semibold hover:underline transition-all"
+              style={{ color: "var(--color-accent)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            >
+              {modo === "login" ? t.auth.register : t.auth.login}
+            </button>
+          </p>
+        </div>
+      )}
     </div>
   </div>
 );

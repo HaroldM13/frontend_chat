@@ -17,6 +17,14 @@ const en: Translations = {
     namePlaceholder: 'e.g. John Doe',
     welcome: 'Welcome to JHT Chat',
     subtitle: 'Connect with your contacts in real time',
+    sendCode: 'Send code',
+    otpTitle: 'Verify your number',
+    otpSubtitle: 'Enter the 6-digit code we sent to',
+    otpCode: 'Verification code',
+    otpPlaceholder: '123456',
+    otpVerify: 'Verify',
+    otpResend: 'Resend code',
+    otpBack: 'Change number',
   },
 
   nav: {

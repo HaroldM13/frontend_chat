@@ -1,6 +1,6 @@
 // ─── Autenticación ─────────────────────────────────────────────────────────
 export interface LoginPayload { telefono: string }
-export interface RegistroPayload { nombre: string; telefono: string }
+export interface RegistroPayload { nombre: string; telefono: string; codigo: string }
 export interface AuthResponse { access_token: string; token_type: string; usuario_id: string; nombre: string }
 export interface AuthState { token: string | null; usuarioId: string | null; nombre: string | null; isAuthenticated: boolean }
 

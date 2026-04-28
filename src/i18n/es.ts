@@ -16,6 +16,14 @@ const es = {
     namePlaceholder: 'Ej: Juan Pérez',
     welcome: 'Bienvenido a JHT Chat',
     subtitle: 'Conecta con tus contactos en tiempo real',
+    sendCode: 'Enviar código',
+    otpTitle: 'Verifica tu número',
+    otpSubtitle: 'Ingresa el código de 6 dígitos que enviamos a',
+    otpCode: 'Código de verificación',
+    otpPlaceholder: '123456',
+    otpVerify: 'Verificar',
+    otpResend: 'Reenviar código',
+    otpBack: 'Cambiar número',
   },
 
   // Navegación y menú
