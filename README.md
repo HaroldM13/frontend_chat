@@ -403,35 +403,93 @@ VITE_WS_URL=wss://api.tudominio.com
 
 ## Instalación y puesta en marcha
 
-### Requisitos previos
+### Paso 1 — Requisitos previos
 
-- Node.js 20+ (recomendado via nvm)
-- Backend corriendo en `http://localhost:8000`
+- Node.js 20+ instalado (recomendado via nvm)
+- **El backend corriendo** — levantarlo primero siguiendo el README de `backend_chat/`
 
-### Pasos
+---
+
+### Paso 2 — Instalar dependencias (solo la primera vez)
 
 ```bash
-# 1. Entrar al directorio del frontend
 cd project_chat/frontend_chat
-
-# 2. Instalar Node.js (si usas nvm)
-source ~/.nvm/nvm.sh
-nvm use 20
-
-# 3. Instalar dependencias
+source ~/.nvm/nvm.sh   # si usas nvm
 npm install
+```
 
-# 4. Configurar variables de entorno
+---
+
+### Paso 3 — Configurar variables de entorno (solo la primera vez)
+
+```bash
 cp .env.example .env
-# El .env por defecto apunta a localhost:8000, no necesita cambios para desarrollo local
+```
 
-# 5. Arrancar el servidor de desarrollo
+Archivo resultante: `project_chat/frontend_chat/.env`
+
+#### En Mac, Linux o Windows con Docker Desktop
+
+No necesitas cambiar nada. El `.env` por defecto ya apunta a `localhost`:
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+```
+
+#### En WSL2 (Windows con backend en Docker dentro de WSL)
+
+El navegador de Windows no puede llegar al backend usando `localhost` porque el backend corre dentro de la red virtual de WSL2. Necesitas la IP interna de WSL.
+
+**Obtener la IP de WSL:**
+```bash
+ip addr show eth0 | grep "inet " | awk '{print $2}' | cut -d/ -f1
+# Ejemplo: 172.21.234.117
+```
+
+Editar `project_chat/frontend_chat/.env` con esa IP:
+```env
+VITE_API_URL=http://172.21.234.117:8000
+VITE_WS_URL=ws://172.21.234.117:8000
+```
+
+> **La IP cambia cada vez que reinicias WSL.** Si el chat deja de funcionar tras un reinicio, vuelve a obtener la IP y actualiza este archivo.
+>
+> También debes actualizar el `ALLOWED_ORIGINS` en `project_chat/backend_chat/.env` con la misma IP (ver README del backend, sección **Paso 5**).
+
+---
+
+### Paso 4 — Arrancar el frontend
+
+```bash
+cd project_chat/frontend_chat
+source ~/.nvm/nvm.sh   # si usas nvm
 npm run dev -- --host
 ```
 
-La aplicación estará disponible en: `http://localhost:5173`
+---
 
-El flag `--host` expone el servidor en la red local, útil para probar desde el celular en la misma red.
+### URLs para abrir en el navegador
+
+#### Mac, Linux o Windows con Docker Desktop
+
+| Qué | URL |
+|---|---|
+| **App (el chat)** | `http://localhost:5173` |
+| **Dozzle** (logs en vivo) | `http://localhost:9999` |
+| **RabbitMQ UI** | `http://localhost:15672` — usuario: `guest` / contraseña: `guest` |
+| **Redis Commander** | `http://localhost:8081` |
+| **Swagger / API docs** | `http://localhost:8000/docs` |
+
+#### WSL2 en Windows (reemplaza `172.21.234.117` con tu IP)
+
+| Qué | URL |
+|---|---|
+| **App (el chat)** | `http://172.21.234.117:5173` |
+| **Dozzle** (logs en vivo) | `http://172.21.234.117:9999` |
+| **RabbitMQ UI** | `http://172.21.234.117:15672` — usuario: `guest` / contraseña: `guest` |
+| **Redis Commander** | `http://172.21.234.117:8081` |
+| **Swagger / API docs** | `http://172.21.234.117:8000/docs` |
 
 ---
 
