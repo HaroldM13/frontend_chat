@@ -38,6 +38,8 @@ const es = {
     lightTheme: 'Claro',
     darkTheme: 'Oscuro',
     search: 'Buscar...',
+    general: 'General',
+    favorites: 'Favoritos',
   },
 
   // Chat
@@ -57,6 +59,13 @@ const es = {
     deleteChat: 'Eliminar conversación',
     deleteChatConfirm: '¿Eliminar la conversación? Se borrará para ambos usuarios.',
     deleteChatBtn: 'Eliminar',
+    noMessagesPreview: 'Sin mensajes · Inicia esta conversación',
+    loadMore: 'Cargar mensajes anteriores',
+    addFavorite: 'Agregar a favoritos',
+    removeFavorite: 'Quitar de favoritos',
+    clearChat: 'Limpiar conversación',
+    clearChatConfirm: '¿Eliminar todos los mensajes? Esta acción no se puede deshacer.',
+    deleteContact: 'Eliminar contacto',
   },
 
   // Contactos
@@ -98,6 +107,12 @@ const es = {
     editName: 'Editar nombre',
     namePlaceholder: 'Nuevo nombre',
     editSuccess: 'Nombre actualizado',
+    description: 'Descripción',
+    descriptionPlaceholder: 'Cuéntanos algo sobre ti...',
+    noDescription: 'Agrega una descripción',
+    descriptionSuccess: 'Descripción actualizada',
+    uploadPhoto: 'Cambiar foto de perfil',
+    photoSuccess: 'Foto actualizada',
     delete: 'Eliminar perfil',
     deleteConfirm: '¿Estás seguro? Esta acción eliminará tu cuenta, mensajes y contactos permanentemente.',
     deleteBtn: 'Sí, eliminar',
@@ -114,6 +129,41 @@ const es = {
     delete: 'Eliminar mi estado',
   },
 
+  // Encuestas
+  polls: {
+    create: 'Crear encuesta',
+    question: 'Pregunta',
+    questionPlaceholder: '¿Cuál es tu pregunta?',
+    option: 'Opción',
+    addOption: '+ Agregar opción',
+    removeOption: 'Quitar opción',
+    createBtn: 'Publicar encuesta',
+    vote: 'Votar',
+    voted: 'Votado',
+    votes: 'votos',
+    noExpiry: 'Sin vencimiento',
+    expiry1min: '1 minuto',
+    expiry5min: '5 minutos',
+    expiry1h: '1 hora',
+    expiryLabel: 'Expira en',
+  },
+
+  // Mensajes contextuales
+  messages: {
+    deleted: 'Mensaje eliminado',
+    edited: 'editado',
+    replyTo: 'Respondiendo a',
+    typing: 'está escribiendo',
+    typingMultiple: 'están escribiendo',
+    edit: 'Editar',
+    delete: 'Eliminar',
+    reply: 'Responder',
+    react: 'Reaccionar',
+    cancelReply: 'Cancelar respuesta',
+    expiresIn: 'Expira en',
+    selfDestruct: 'Mensaje efímero',
+  },
+
   // Errores y estados
   common: {
     error: 'Error',
@@ -128,6 +178,14 @@ const es = {
     online: 'Conectado',
     connecting: 'Conectando...',
     disconnected: 'Sin conexión',
+    micStart: 'Grabar audio',
+    micStop: 'Detener grabación',
+    attachFile: 'Adjuntar archivo',
+    lastSeen: 'Visto',
+    lastSeenAt: 'Visto hoy a las',
+    lastSeenAgo: 'Visto hace',
+    minutes: 'min',
+    hours: 'h',
   },
 }
 

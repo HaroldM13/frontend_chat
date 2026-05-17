@@ -73,6 +73,13 @@ export class WebSocketService {
     }
   }
 
+  /** Envía un evento arbitrario como JSON (typing, reply_to_id, expira_en, etc.). */
+  enviarEvento(evento: Record<string, unknown>): void {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(evento))
+    }
+  }
+
   /** Cierra la conexión WebSocket de forma limpia. */
   desconectar(): void {
     this.cerradoManualmente = true

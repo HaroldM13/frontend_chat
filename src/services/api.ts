@@ -2,7 +2,7 @@ import type {
   AuthResponse, RegistroPayload, Estado,
   Contacto, AgregarContactoPayload,
   Grupo, CrearGrupoPayload, AgregarMiembroPayload,
-  Mensaje, Usuario, Presencia,
+  Mensaje, Usuario, Presencia, ResumenConversaciones, Favorito, Reaccion, OpcionEncuesta,
 } from '../interfaces'
 
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -46,6 +46,27 @@ export const usuariosApi = {
       method: 'PATCH',
       body: JSON.stringify({ nombre }),
     }, token),
+
+  editarDescripcion: (descripcion: string, token: string) =>
+    peticion<{ mensaje: string; descripcion: string }>('/usuarios/perfil', {
+      method: 'PATCH',
+      body: JSON.stringify({ descripcion }),
+    }, token),
+
+  subirFoto: async (archivo: File, token: string): Promise<{ foto_url: string }> => {
+    const form = new FormData()
+    form.append('archivo', archivo)
+    const res = await fetch(`${API_URL}/usuarios/perfil/foto`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Error desconocido' }))
+      throw new Error(err.detail || `Error ${res.status}`)
+    }
+    return res.json()
+  },
 
   eliminarPerfil: (token: string) =>
     peticion<{ mensaje: string }>('/usuarios/perfil', { method: 'DELETE' }, token),
@@ -100,14 +121,14 @@ export const gruposApi = {
 
 // ─── Mensajes ──────────────────────────────────────────────────────────────
 export const mensajesApi = {
-  historialSala: (token: string, limite = 50) =>
-    peticion<Mensaje[]>(`/mensajes/sala?limite=${limite}`, {}, token),
+  historialSala: (token: string, limite = 50, antesDe?: string) =>
+    peticion<Mensaje[]>(`/mensajes/sala?limite=${limite}${antesDe ? `&antes_de=${encodeURIComponent(antesDe)}` : ''}`, {}, token),
 
-  historialPrivado: (otroUsuarioId: string, token: string, limite = 50) =>
-    peticion<Mensaje[]>(`/mensajes/privado/${otroUsuarioId}?limite=${limite}`, {}, token),
+  historialPrivado: (otroUsuarioId: string, token: string, limite = 50, antesDe?: string) =>
+    peticion<Mensaje[]>(`/mensajes/privado/${otroUsuarioId}?limite=${limite}${antesDe ? `&antes_de=${encodeURIComponent(antesDe)}` : ''}`, {}, token),
 
-  historialGrupo: (grupoId: string, token: string, limite = 50) =>
-    peticion<Mensaje[]>(`/mensajes/grupo/${grupoId}?limite=${limite}`, {}, token),
+  historialGrupo: (grupoId: string, token: string, limite = 50, antesDe?: string) =>
+    peticion<Mensaje[]>(`/mensajes/grupo/${grupoId}?limite=${limite}${antesDe ? `&antes_de=${encodeURIComponent(antesDe)}` : ''}`, {}, token),
 
   subirImagen: async (
     archivo: File,
@@ -142,6 +163,106 @@ export const mensajesApi = {
     peticion<{ mensaje: string; mensajes_eliminados: number }>(`/mensajes/privado/${otroUsuarioId}`, {
       method: 'DELETE',
     }, token),
+
+  editarMensaje: (msgId: string, contenido: string, token: string) =>
+    peticion<{ id: string; contenido: string; editado: boolean }>(`/mensajes/${msgId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ contenido }),
+    }, token),
+
+  eliminarMensajePropio: (msgId: string, token: string) =>
+    peticion<{ id: string; eliminado: boolean }>(`/mensajes/${msgId}/propio`, {
+      method: 'DELETE',
+    }, token),
+
+  resumen: (token: string) =>
+    peticion<ResumenConversaciones>('/mensajes/resumen', {}, token),
+
+  subirArchivo: async (
+    archivo: File,
+    tipochat: string,
+    token: string,
+    destinatarioId?: string,
+    grupoId?: string,
+  ) => {
+    const form = new FormData()
+    form.append('archivo', archivo)
+    form.append('tipo_chat', tipochat)
+    if (destinatarioId) form.append('destinatario_id', destinatarioId)
+    if (grupoId) form.append('grupo_id', grupoId)
+    const res = await fetch(`${API_URL}/mensajes/archivo`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Error desconocido' }))
+      throw new Error(err.detail || `Error ${res.status}`)
+    }
+    return res.json()
+  },
+}
+
+// ─── Reacciones ────────────────────────────────────────────────────────────
+export const reaccionesApi = {
+  toggle: (msgId: string, emoji: string, token: string) =>
+    peticion<{ reacciones: Reaccion[] }>(`/reacciones/${msgId}`, {
+      method: 'POST',
+      body: JSON.stringify({ emoji }),
+    }, token),
+}
+
+// ─── Encuestas ─────────────────────────────────────────────────────────────
+export interface CrearEncuestaPayload {
+  pregunta: string
+  opciones: string[]
+  tipo_chat: string
+  destinatario_id?: string
+  grupo_id?: string
+}
+
+export interface EncuestaCreada {
+  id: string
+  tipo: string
+  subtipo: string
+  remitente_id: string
+  nombre_remitente: string
+  contenido: string
+  opciones: OpcionEncuesta[]
+  votos: Record<string, number>
+  mi_voto: string | null
+  created_at: string
+  destinatario_id?: string
+  grupo_id?: string
+}
+
+export const encuestasApi = {
+  crear: (payload: CrearEncuestaPayload, token: string) =>
+    peticion<EncuestaCreada>('/encuestas', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }, token),
+
+  votar: (msgId: string, opcionId: string, token: string) =>
+    peticion<{ votos: Record<string, number>; mi_voto: string | null }>(`/encuestas/${msgId}/votar`, {
+      method: 'POST',
+      body: JSON.stringify({ opcion_id: opcionId }),
+    }, token),
+}
+
+// ─── Favoritos ─────────────────────────────────────────────────────────────
+export const favoritosApi = {
+  listar: (token: string) =>
+    peticion<Favorito[]>('/favoritos', {}, token),
+
+  agregar: (chatKey: string, token: string) =>
+    peticion<{ chat_key: string }>('/favoritos', {
+      method: 'POST',
+      body: JSON.stringify({ chat_key: chatKey }),
+    }, token),
+
+  quitar: (chatKey: string, token: string) =>
+    peticion<{ ok: boolean }>(`/favoritos/${encodeURIComponent(chatKey)}`, { method: 'DELETE' }, token),
 }
 
 // ─── Estados ───────────────────────────────────────────────────────────────

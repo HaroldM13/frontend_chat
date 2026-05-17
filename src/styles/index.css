@@ -107,6 +107,11 @@ body {
   50%       { opacity: 0.4; }
 }
 
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%            { transform: translateY(-5px); }
+}
+
 .animate-fade-in-up  { animation: fadeInUp 0.22s ease both; }
 .animate-fade-in     { animation: fadeIn 0.18s ease both; }
 .animate-slide-left  { animation: slideInLeft 0.28s cubic-bezier(0.22,1,0.36,1) both; }

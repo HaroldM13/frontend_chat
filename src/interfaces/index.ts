@@ -2,10 +2,10 @@
 export interface LoginPayload { telefono: string }
 export interface RegistroPayload { nombre: string; telefono: string; codigo: string }
 export interface AuthResponse { access_token: string; token_type: string; usuario_id: string; nombre: string }
-export interface AuthState { token: string | null; usuarioId: string | null; nombre: string | null; isAuthenticated: boolean }
+export interface AuthState { token: string | null; usuarioId: string | null; nombre: string | null; fotoUrl: string | null; isAuthenticated: boolean }
 
 // ─── Usuarios ──────────────────────────────────────────────────────────────
-export interface Usuario { id: string; nombre: string; telefono: string; created_at: string }
+export interface Usuario { id: string; nombre: string; telefono: string; foto_url?: string | null; descripcion?: string | null; created_at: string }
 
 // ─── Contactos ─────────────────────────────────────────────────────────────
 export interface Contacto { contacto_id: string; nombre: string; telefono: string; created_at: string }
@@ -20,10 +20,29 @@ export interface AgregarMiembroPayload { telefono: string }
 // ─── Mensajes ──────────────────────────────────────────────────────────────
 export type TipoMensaje = 'sala' | 'privado' | 'grupo'
 
+export interface ReplyTo {
+  id: string
+  contenido: string
+  nombre_remitente: string
+  subtipo?: string | null
+}
+
+export interface Reaccion {
+  emoji: string
+  count: number
+  usuarios: string[]
+}
+
+export interface OpcionEncuesta {
+  id: string
+  texto: string
+}
+
 export interface Mensaje {
   id: string
   tipo: TipoMensaje
-  subtipo?: 'imagen'
+  subtipo?: 'imagen' | 'audio' | 'video' | 'archivo' | 'encuesta'
+  nombre_archivo?: string
   remitente_id: string
   nombre_remitente: string
   contenido: string
@@ -31,12 +50,21 @@ export interface Mensaje {
   grupo_id?: string
   leido?: boolean | null
   created_at: string
+  // Nuevos campos
+  reply_to?: ReplyTo | null
+  reacciones?: Reaccion[]
+  editado?: boolean
+  eliminado?: boolean
+  expira_at?: string | null
+  votos?: Record<string, number> | null
+  opciones?: OpcionEncuesta[]
 }
 
 export interface MensajeWS {
   id: string
-  tipo: TipoMensaje | 'mensajes_leidos'
-  subtipo?: 'imagen'
+  tipo: TipoMensaje | 'mensajes_leidos' | 'escribiendo' | 'dejo_escribir' | 'mensaje_editado' | 'mensaje_eliminado' | 'reaccion' | 'voto_encuesta'
+  subtipo?: 'imagen' | 'audio' | 'video' | 'archivo' | 'encuesta'
+  nombre_archivo?: string
   remitente_id: string
   nombre_remitente: string
   contenido: string
@@ -46,6 +74,18 @@ export interface MensajeWS {
   // Campos del evento mensajes_leidos
   lector_id?: string
   created_at: string
+  // Nuevos campos
+  usuario_id?: string
+  reply_to?: ReplyTo | null
+  reacciones?: Reaccion[]
+  editado?: boolean
+  eliminado?: boolean
+  expira_at?: string | null
+  votos?: Record<string, number> | null
+  opciones?: OpcionEncuesta[]
+  // Para eventos específicos
+  mensaje_id?: string
+  opcion_id?: string
 }
 
 // ─── Chat activo ───────────────────────────────────────────────────────────
@@ -65,7 +105,29 @@ export interface Estado {
 // ─── Tema, idioma, presencia ───────────────────────────────────────────────
 export type Tema = 'light' | 'dark'
 export type Idioma = 'es' | 'en'
-export interface Presencia { conectado: boolean; usuario_id: string }
+export interface Presencia { conectado: boolean; usuario_id: string; ultima_vez?: string | null }
+
+// ─── Resumen de conversaciones ─────────────────────────────────────────────
+export interface ResumenMensaje {
+  nombre_remitente: string
+  remitente_id: string
+  contenido: string
+  subtipo?: string
+  no_leidos?: number
+  created_at: string
+}
+export type ResumenConversaciones = Record<string, ResumenMensaje>
+
+// ─── Favoritos ─────────────────────────────────────────────────────────────
+export interface Favorito { chat_key: string; created_at: string }
+
+// ─── Acciones del menú contextual del sidebar ──────────────────────────────
+export type ContextAction =
+  | { tipo: 'favorito'; chatKey: string }
+  | { tipo: 'limpiarPrivado'; contactoId: string }
+  | { tipo: 'eliminarContacto'; contactoId: string }
+  | { tipo: 'salirGrupo'; grupoId: string }
+  | { tipo: 'eliminarGrupo'; grupoId: string }
 
 // ─── API genérico ──────────────────────────────────────────────────────────
 export interface ApiError { detail: string }
