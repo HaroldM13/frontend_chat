@@ -352,7 +352,7 @@ export function InputMensaje({
                   boxShadow: 'var(--shadow-md)',
                   overflow: 'hidden',
                   zIndex: 30,
-                  minWidth: '10rem',
+                  width: 'max-content',
                 }}
               >
                 {onEnviarImagen && (
@@ -360,7 +360,7 @@ export function InputMensaje({
                     type="button"
                     onClick={() => { setDropupAbierto(false); inputImagenRef.current?.click() }}
                     className="w-full flex items-center transition-colors hover:bg-[var(--color-bg-tertiary)]"
-                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     <IconPhoto size={18} />
                     Imagen
@@ -371,7 +371,7 @@ export function InputMensaje({
                     type="button"
                     onClick={() => { setDropupAbierto(false); inputArchivoRef.current?.click() }}
                     className="w-full flex items-center transition-colors hover:bg-[var(--color-bg-tertiary)]"
-                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     <IconPaperclip size={18} />
                     {t.common.attachFile}
@@ -382,7 +382,7 @@ export function InputMensaje({
                     type="button"
                     onClick={() => { setDropupAbierto(false); onCrearEncuesta() }}
                     className="w-full flex items-center transition-colors hover:bg-[var(--color-bg-tertiary)]"
-                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     <IconChartBar size={18} />
                     {t.polls.create}
