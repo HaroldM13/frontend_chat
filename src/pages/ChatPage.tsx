@@ -720,6 +720,7 @@ export function ChatPage() {
               }
             />
             <AreaMensajes
+              key={salaWS ?? 'none'}
               mensajes={todosMensajes}
               usuarioId={usuarioId}
               cargando={cargandoHistorial}
