@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logoJHT from "../assets/LogoJHT.jpeg";
 import {
   IconUsers,
   IconUsersGroup,
@@ -237,7 +238,8 @@ export function BarraLateral({
                 <span className="font-bold truncate" style={{ color: 'var(--color-text-primary)', fontSize: '1rem', marginBottom: '0.125rem' }}>
                   {nombre}
                 </span>
-                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>
+                <span className="flex items-center gap-1" style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>
+                  <img src={logoJHT} alt="JHT" style={{ width: '1rem', height: '1rem', borderRadius: '0.25rem', objectFit: 'cover' }} />
                   JHT Chat
                 </span>
               </div>

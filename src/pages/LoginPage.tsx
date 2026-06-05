@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { IconMessageCircle, IconSun, IconMoon } from "@tabler/icons-react";
+import { IconSun, IconMoon } from "@tabler/icons-react";
+import logoJHT from "../assets/LogoJHT.jpeg";
 import { authApi } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useTema } from "../context/TemaContext";
@@ -137,16 +138,15 @@ export function LoginPage() {
         style={{ marginBottom: "2.5rem" }} // ← MÁS ESPACIO
       >
         <div
-          className="flex items-center justify-center shadow-lg"
-          style={{ 
-            backgroundColor: "var(--color-accent)",
-            width: "5rem", // ← ÍCONO MÁS GRANDE
+          className="flex items-center justify-center shadow-lg overflow-hidden"
+          style={{
+            width: "5rem",
             height: "5rem",
             borderRadius: "1.5rem",
             marginBottom: "1.5rem"
           }}
         >
-          <IconMessageCircle size={48} color="#fff" strokeWidth={2} />
+          <img src={logoJHT} alt="JHT Chat" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
         <h1
           className="font-bold"
