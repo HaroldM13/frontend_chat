@@ -261,8 +261,8 @@ export function BurbujaMensaje({ mensaje, onReply, onEdit, onDelete, onReacciona
 
   return (
     <div
-      className={`flex flex-col animate-fade-in-up max-w-[85%] sm:max-w-[75%] md:max-w-[65%]
-        ${esPropio ? 'self-end items-end' : 'self-start items-start'}`}
+      className={`flex flex-col animate-fade-in-up max-w-[85%] sm:max-w-[75%] md:max-w-[60%]
+        ${esPropio ? 'items-end' : 'items-start'}`}
       style={{ marginBottom: '1.25rem', position: 'relative' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setMostrarEmojis(false) }}

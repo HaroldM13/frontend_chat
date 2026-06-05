@@ -721,6 +721,7 @@ export function ChatPage() {
             />
             <AreaMensajes
               mensajes={todosMensajes}
+              usuarioId={usuarioId}
               cargando={cargandoHistorial}
               hayMas={hayMas}
               cargandoMas={cargandoMas}
@@ -747,44 +748,59 @@ export function ChatPage() {
           </>
         ) : (
           /* Pantalla de bienvenida */
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8 animate-fade-in">
-            <button
-              onClick={() => setSidebarVisible(true)}
-              className="md:hidden absolute top-6 left-6 p-3 rounded-xl shadow-card"
-              style={{
-                backgroundColor: "var(--color-bg-secondary)",
-                color: "var(--color-text-secondary)",
-                border: "1px solid var(--color-border)",
-              }}
-            >
-              <IconMenu2 size={22} />
-            </button>
-
+          <div className="flex-1 flex flex-col animate-fade-in">
+            {/* Barra superior móvil con hamburguesa integrada */}
             <div
-              className="w-28 h-28 rounded-3xl flex items-center justify-center"
+              className="md:hidden flex items-center flex-shrink-0 border-b"
               style={{
-                backgroundColor: "var(--color-accent-light)",
-                boxShadow: "var(--shadow-md)",
+                backgroundColor: 'var(--color-bg-secondary)',
+                borderColor: 'var(--color-border)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                padding: '1.25rem 1.5rem',
+                gap: '1rem',
               }}
             >
-              <IconMessageCircle
-                size={56}
-                style={{ color: "var(--color-accent)" }}
-              />
+              <button
+                onClick={() => setSidebarVisible(true)}
+                className="rounded-2xl transition-colors hover:bg-[var(--color-bg-tertiary)]"
+                style={{ color: 'var(--color-text-secondary)', padding: '0.5rem' }}
+                title="Menú"
+              >
+                <IconMenu2 size={22} />
+              </button>
+              <span className="font-bold" style={{ color: 'var(--color-text-primary)', fontSize: '1rem' }}>
+                JHT Chat
+              </span>
             </div>
-            <div className="text-center space-y-3">
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "var(--color-text-primary)" }}
+
+            {/* Contenido centrado */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
+              <div
+                className="w-28 h-28 rounded-3xl flex items-center justify-center"
+                style={{
+                  backgroundColor: "var(--color-accent-light)",
+                  boxShadow: "var(--shadow-md)",
+                }}
               >
-                {t.chat.selectChat}
-              </p>
-              <p
-                className="text-sm max-w-sm"
-                style={{ color: "var(--color-text-muted)" }}
-              >
-                {t.chat.selectChatDesc}
-              </p>
+                <IconMessageCircle
+                  size={56}
+                  style={{ color: "var(--color-accent)" }}
+                />
+              </div>
+              <div className="text-center space-y-3">
+                <p
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  {t.chat.selectChat}
+                </p>
+                <p
+                  className="text-sm max-w-sm"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  {t.chat.selectChatDesc}
+                </p>
+              </div>
             </div>
           </div>
         )}

@@ -13,6 +13,7 @@ import { IconMessages } from '@tabler/icons-react'
 
 interface Props {
   mensajes: (Mensaje | MensajeWS)[]
+  usuarioId: string | null
   cargando?: boolean
   hayMas?: boolean
   cargandoMas?: boolean
@@ -75,6 +76,7 @@ function TypingIndicator({ usuarios }: { usuarios: UsuarioEscribiendo[] }) {
 
 export function AreaMensajes({
   mensajes,
+  usuarioId,
   cargando = false,
   hayMas = false,
   cargandoMas = false,
@@ -168,7 +170,7 @@ export function AreaMensajes({
     <div
       ref={containerRef}
       className="flex-1 overflow-y-auto flex flex-col"
-      style={{ backgroundColor: 'var(--color-bg-primary)', padding: '1.5rem' }}
+      style={{ backgroundColor: 'var(--color-bg-primary)', padding: '1rem 0.75rem' }}
     >
       {mensajes.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center animate-fade-in" style={{ gap: '1rem' }}>
@@ -206,7 +208,15 @@ export function AreaMensajes({
           )}
 
           {mensajes.map(m => (
-            <div key={m.id} id={`msg-${m.id}`}>
+            <div
+              key={m.id}
+              id={`msg-${m.id}`}
+              style={{
+                display: 'flex',
+                width: '100%',
+                justifyContent: m.remitente_id === usuarioId ? 'flex-end' : 'flex-start',
+              }}
+            >
               <BurbujaMensaje
                 mensaje={m}
                 onReply={onReply}

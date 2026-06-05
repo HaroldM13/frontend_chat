@@ -11,7 +11,7 @@
 import { useState, useRef, useCallback, useEffect, type KeyboardEvent } from 'react'
 import {
   IconSend, IconPhoto, IconMicrophone, IconPlayerStop, IconPaperclip,
-  IconX, IconFlame, IconChartBar,
+  IconX, IconFlame, IconChartBar, IconPlus,
 } from '@tabler/icons-react'
 import { useIdioma } from '../context/IdiomaContext'
 import type { ReplyTo } from '../interfaces'
@@ -55,6 +55,8 @@ export function InputMensaje({
   const [grabando, setGrabando] = useState(false)
   const [expiraEn, setExpiraEn] = useState<ValorExpiracion>(undefined)
   const [mostrarExpiracion, setMostrarExpiracion] = useState(false)
+  const [dropupAbierto, setDropupAbierto] = useState(false)
+  const [avisoVideo, setAvisoVideo] = useState(false)
   const inputImagenRef = useRef<HTMLInputElement>(null)
   const inputArchivoRef = useRef<HTMLInputElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -62,6 +64,7 @@ export function InputMensaje({
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const estaEscribiendoRef = useRef(false)
   const expiryRef = useRef<HTMLDivElement>(null)
+  const dropupRef = useRef<HTMLDivElement>(null)
 
   // Cerrar dropdown de expiración al clic fuera
   useEffect(() => {
@@ -74,6 +77,18 @@ export function InputMensaje({
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [mostrarExpiracion])
+
+  // Cerrar dropup de adjuntos al clic fuera
+  useEffect(() => {
+    if (!dropupAbierto) return
+    const handler = (e: MouseEvent) => {
+      if (dropupRef.current && !dropupRef.current.contains(e.target as Node)) {
+        setDropupAbierto(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [dropupAbierto])
 
   const dispararStopTyping = useCallback(() => {
     if (estaEscribiendoRef.current) {
@@ -133,10 +148,14 @@ export function InputMensaje({
 
   const manejarArchivo = (e: React.ChangeEvent<HTMLInputElement>) => {
     const archivo = e.target.files?.[0]
-    if (archivo && onEnviarArchivo) {
-      onEnviarArchivo(archivo)
-      e.target.value = ''
+    if (!archivo) return
+    e.target.value = ''
+    if (archivo.type.startsWith('video/')) {
+      setAvisoVideo(true)
+      setTimeout(() => setAvisoVideo(false), 4000)
+      return
     }
+    if (onEnviarArchivo) onEnviarArchivo(archivo)
   }
 
   const iniciarGrabacion = async () => {
@@ -188,6 +207,25 @@ export function InputMensaje({
         boxShadow: '0 -2px 12px rgba(0,0,0,0.06)',
       }}
     >
+      {/* Aviso video no soportado */}
+      {avisoVideo && (
+        <div
+          className="flex items-center"
+          style={{
+            borderTop: '1px solid var(--color-border)',
+            backgroundColor: 'rgba(249, 115, 22, 0.08)',
+            borderLeft: '3px solid #f97316',
+            padding: '0.5rem 0.875rem',
+            gap: '0.5rem',
+          }}
+        >
+          <span style={{ fontSize: '1rem' }}>🎬</span>
+          <p style={{ fontSize: '0.8125rem', color: '#f97316', fontWeight: '500' }}>
+            Subida de videos próximamente disponible.
+          </p>
+        </div>
+      )}
+
       {/* Preview de respuesta */}
       {replyTo && (
         <div
@@ -241,64 +279,118 @@ export function InputMensaje({
           onChange={manejarArchivo}
         />
 
-        {/* Botón imagen */}
-        {onEnviarImagen && !grabando && (
-          <button
-            type="button"
-            onClick={() => !deshabilitado && inputImagenRef.current?.click()}
-            disabled={deshabilitado}
-            className="flex-shrink-0 flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-muted)',
-              border: '1px solid var(--color-border)',
-              width: '2.75rem',
-              height: '2.75rem',
-            }}
-            title="Enviar imagen"
-          >
-            <IconPhoto size={19} />
-          </button>
+        {/* Desktop: botones individuales */}
+        {!grabando && (
+          <div className="hidden md:flex items-center flex-shrink-0" style={{ gap: '0.5rem' }}>
+            {onEnviarImagen && (
+              <button
+                type="button"
+                onClick={() => !deshabilitado && inputImagenRef.current?.click()}
+                disabled={deshabilitado}
+                className="flex-shrink-0 flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
+                style={{ backgroundColor: 'var(--color-bg-tertiary)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', width: '2.75rem', height: '2.75rem' }}
+                title="Enviar imagen"
+              >
+                <IconPhoto size={19} />
+              </button>
+            )}
+            {onEnviarArchivo && (
+              <button
+                type="button"
+                onClick={() => !deshabilitado && inputArchivoRef.current?.click()}
+                disabled={deshabilitado}
+                className="flex-shrink-0 flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
+                style={{ backgroundColor: 'var(--color-bg-tertiary)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', width: '2.75rem', height: '2.75rem' }}
+                title={t.common.attachFile}
+              >
+                <IconPaperclip size={19} />
+              </button>
+            )}
+            {onCrearEncuesta && (
+              <button
+                type="button"
+                onClick={() => !deshabilitado && onCrearEncuesta()}
+                disabled={deshabilitado}
+                className="flex-shrink-0 flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
+                style={{ backgroundColor: 'var(--color-bg-tertiary)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', width: '2.75rem', height: '2.75rem' }}
+                title={t.polls.create}
+              >
+                <IconChartBar size={19} />
+              </button>
+            )}
+          </div>
         )}
 
-        {/* Botón adjuntar archivo / video */}
-        {onEnviarArchivo && !grabando && (
-          <button
-            type="button"
-            onClick={() => !deshabilitado && inputArchivoRef.current?.click()}
-            disabled={deshabilitado}
-            className="flex-shrink-0 flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-muted)',
-              border: '1px solid var(--color-border)',
-              width: '2.75rem',
-              height: '2.75rem',
-            }}
-            title={t.common.attachFile}
-          >
-            <IconPaperclip size={19} />
-          </button>
-        )}
-
-        {/* Botón encuesta */}
-        {onCrearEncuesta && !grabando && (
-          <button
-            type="button"
-            onClick={() => !deshabilitado && onCrearEncuesta()}
-            disabled={deshabilitado}
-            className="flex-shrink-0 flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-muted)',
-              border: '1px solid var(--color-border)',
-              width: '2.75rem',
-              height: '2.75rem',
-            }}
-            title={t.polls.create}
-          >
-            <IconChartBar size={19} />
-          </button>
+        {/* Mobile: botón "+" con dropup */}
+        {!grabando && (onEnviarImagen || onEnviarArchivo || onCrearEncuesta) && (
+          <div className="md:hidden flex-shrink-0 relative" ref={dropupRef}>
+            <button
+              type="button"
+              onClick={() => setDropupAbierto(v => !v)}
+              disabled={deshabilitado}
+              className="flex items-center justify-center rounded-2xl transition-all disabled:opacity-40"
+              style={{
+                backgroundColor: dropupAbierto ? 'var(--color-accent)' : 'var(--color-bg-tertiary)',
+                color: dropupAbierto ? '#fff' : 'var(--color-text-muted)',
+                border: dropupAbierto ? 'none' : '1px solid var(--color-border)',
+                width: '2.75rem',
+                height: '2.75rem',
+              }}
+              title="Adjuntar"
+            >
+              <IconPlus size={20} style={{ transition: 'transform 0.2s', transform: dropupAbierto ? 'rotate(45deg)' : 'rotate(0deg)' }} />
+            </button>
+            {dropupAbierto && (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '110%',
+                  left: 0,
+                  backgroundColor: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '1rem',
+                  boxShadow: 'var(--shadow-md)',
+                  overflow: 'hidden',
+                  zIndex: 30,
+                  minWidth: '10rem',
+                }}
+              >
+                {onEnviarImagen && (
+                  <button
+                    type="button"
+                    onClick={() => { setDropupAbierto(false); inputImagenRef.current?.click() }}
+                    className="w-full flex items-center transition-colors hover:bg-[var(--color-bg-tertiary)]"
+                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    <IconPhoto size={18} />
+                    Imagen
+                  </button>
+                )}
+                {onEnviarArchivo && (
+                  <button
+                    type="button"
+                    onClick={() => { setDropupAbierto(false); inputArchivoRef.current?.click() }}
+                    className="w-full flex items-center transition-colors hover:bg-[var(--color-bg-tertiary)]"
+                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    <IconPaperclip size={18} />
+                    {t.common.attachFile}
+                  </button>
+                )}
+                {onCrearEncuesta && (
+                  <button
+                    type="button"
+                    onClick={() => { setDropupAbierto(false); onCrearEncuesta() }}
+                    className="w-full flex items-center transition-colors hover:bg-[var(--color-bg-tertiary)]"
+                    style={{ padding: '0.75rem 1rem', gap: '0.75rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    <IconChartBar size={18} />
+                    {t.polls.create}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Textarea */}
